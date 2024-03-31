@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Creating directory for outputs
+mkdir -p outputs
+
+# Creating directory for charts
+mkdir -p charts
+
 # Creating Security Group for both Kubernetes and GitLab.
 # Allowing traeffic:
 # (1) Incoming allowed on port 443 with protocol tcp from all addresses
@@ -58,4 +64,29 @@ yc managed-kubernetes node-group create \
 # Obtaining Kubeconfig
 yc managed-kubernetes cluster get-credentials --name=kube-infra --external
 
-# 
+# Creating Yandex Cloud Service Account
+yc iam service-account create --name ingress-controller
+
+# Role alb.editor is requried to create load-balancers
+yc resource-manager folder add-access-binding default \
+--service-account-name=ingress-controller \
+--role alb.editor
+
+# Role vpc.publicAdmin is required to manage external addresses
+yc resource-manager folder add-access-binding default \
+--service-account-name=ingress-controller \
+--role vpc.publicAdmin
+
+# Role certificate-manager.certificates.downloader
+# is required to download certificates from Yandex Certificate Manager
+yc resource-manager folder add-access-binding default \
+--service-account-name=ingress-controller \
+--role certificate-manager.certificates.downloader
+
+# Role compute.viewer is required to add node into the balancer
+yc resource-manager folder add-access-binding default \
+--service-account-name=ingress-controller \
+--role compute.viewer
+
+# Creating Authorization Key
+yc iam key create --service-account-name ingress-controller --output outputs/sa-key.json
