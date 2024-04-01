@@ -90,3 +90,34 @@ yc resource-manager folder add-access-binding default \
 
 # Creating Authorization Key
 yc iam key create --service-account-name ingress-controller --output outputs/sa-key.json
+
+# Authorization Yandex Helm Registry
+export HELM_EXPERIMENTAL_OCI=1
+cat outputs/sa-key.json | helm registry login cr.yandex --username 'json_key' --password-stdin
+
+# Downloading Ingress Controller Helm into the "charts" directory
+helm pull oci://cr.yandex/yc-marketplace/yandex-cloud/yc-alb-ingress/yc-alb-ingress-controller-chart \
+  --version v0.1.17 --untar --untardir=charts
+
+# Installing the Chart into the Cluster
+export FOLDER_ID=$(yc config get folder-id)
+export CLUSTER_ID=$(yc managed-kubernetes cluster get kube-infra | head -n 1 | awk -F ': ' '{print $2}')
+
+helm install \
+--create-namespace \
+--namespace yc-alb-ingress \
+--set folderId=$FOLDER_ID \
+--set clusterId=$CLUSTER_ID \
+--set-file saKeySecretKey=sa-key.json \
+yc-alb-ingress-controller ./charts/yc-alb-ingress-controller-chart/
+
+# Checking if resources are created
+kubectl -n yc-alb-ingress get all
+
+# Creating Namespace
+kubectl create namespace httpbin
+
+# Applying the Manifest to created Namespace
+kubectl apply -n httpbin -f manifests/httpbin.yaml
+
+
