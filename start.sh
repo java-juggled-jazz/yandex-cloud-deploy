@@ -36,6 +36,11 @@ yc resource-manager folder add-access-binding \
   --service-account-name=kube-infra \
   --role=editor
 
+#Creating Kubernetes Cluster Key
+yc kms asymmetric-key create \
+  --name=k8s-key \
+  --encryption-algorithm=rsa-4096-enc-oaep-sha-256
+
 # Creating Managed Kubernetes Cluster
 yc managed-kubernetes cluster create \
   --name=kube-infra \
@@ -43,6 +48,7 @@ yc managed-kubernetes cluster create \
   --network-name=default \
   --service-account-name=kube-infra \
   --node-service-account-name=kube-infra \
+  --kms-key-name k8s-key \
   --release-channel=rapid \
   --zone=ru-central1-b \
   --version 1.24 \

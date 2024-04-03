@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: creator
+  labels:
+    app: creator
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: creator
+  template:
+    metadata:
+      labels:
+        app: creator
+    spec:
+      containers:
+        - name: creator
+          image: 
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            - name: PGSQL_USERNAME
+            - value: 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: creator-service
+spec:
+  type: NodePort
+  selector:
+    app: creator
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+      nodePort: 30081
