@@ -10,11 +10,11 @@ DB_PASSWORD = os.environ['DB_PASSWORD']
 
 app = FastAPI()
 
-@app.post("/", status_code=200)
-def create(data_post = Body()):
+@app.get("/", status_code=200)
+def read(body: Body):
     conn = psycopg2.connect(host=f"c-{CLUSTER_ID}.rw.mdb.yandexcloud.net", port=DB_PORT, dbname=DB_NAME, user=DB_USERNAME, password=DB_PASSWORD, target_session_attrs="read-write", sslmode="verify-full", sslrootcert="/etc/ssl/.postgres/root.crt")
 
-    ID = data_post["ID"]
+    ID = body["ID"]
 
     q = conn.cursor()
     q.execute('SELECT message FROM messages WHERE id = %s', ID)
