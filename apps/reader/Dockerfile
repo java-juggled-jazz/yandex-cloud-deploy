@@ -8,4 +8,4 @@ RUN apt-get update && \
     chmod 0600 /etc/ssl/.postgresql/root.crt
 COPY . /app
 RUN pip install -r requirements.txt
-ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+ENTRYPOINT ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
