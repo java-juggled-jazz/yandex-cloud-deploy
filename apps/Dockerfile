@@ -1,4 +1,5 @@
-FROM python:slim-bullseye
+FROM public.ecr.aws/docker/library/python:slim-bullseye
+ARG app-dir
 WORKDIR /app
 RUN apt-get update && \
     apt-get install wget postgresql-client --yes && \

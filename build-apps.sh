@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source .env
 cd apps
 
 docker build --build-arg app-dir=reader --tag cr.yandex/$REGISTRY_ID/reader
